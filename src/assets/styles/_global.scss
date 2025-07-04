@@ -24,6 +24,21 @@ html, body {
   font-weight: 400;
 }
 
+//задаем стили для маленького инпута при оформлении карточки товара
+.small-input{
+  border-radius: 5px;
+  border: 1px solid #6CAC72;
+  text-align: center;
+  padding: 2px;
+  box-sizing: border-box;
+  width: 40px;
+  height: 28px;
+  color: $green-text-color;
+  font-family: Montserrat, sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+}
+
 .button {
   text-align: center;
   padding: 15px;
@@ -41,6 +56,12 @@ html, body {
     background: gray;
     cursor: not-allowed;
   }
+}
+
+//для кнопок-ссылок
+a.button{
+  text-decoration: none;
+  display: inline-block;
 }
 
 //для элементов выпадающего меню

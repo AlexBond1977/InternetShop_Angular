@@ -19,3 +19,18 @@
   font-family: "Lora";
   font-weight: 400;
 }
+
+//задаем шрифт при оформлении страницы main и карточки товара
+@font-face {
+  src: url("../fonts/Montserrat-SemiBold.ttf");
+  font-family: "Montserrat";
+  font-weight: 600;
+}
+
+//задаем шрифт для страницы main и описании блока info
+@font-face {
+  src: url("../fonts/Montserrat-LightItalic.ttf");
+  font-family: "Montserrat";
+  font-style: italic;
+  font-weight: 300;
+}

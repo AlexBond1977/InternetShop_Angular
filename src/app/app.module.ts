@@ -11,6 +11,8 @@ import {HttpClientModule} from "@angular/common/http";
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import {MAT_SNACK_BAR_DEFAULT_OPTIONS, MatSnackBarModule} from "@angular/material/snack-bar";
 import {MatMenuModule} from "@angular/material/menu";
+import {SharedModule} from "./shared/shared.module";
+import {CarouselModule} from "ngx-owl-carousel-o";
 
 @NgModule({
   declarations: [
@@ -25,6 +27,8 @@ import {MatMenuModule} from "@angular/material/menu";
     HttpClientModule, //подключаем после создания сервиса category.service.ts
     MatSnackBarModule, //подключаем Snackbar для вывода сообщений пользователю
     MatMenuModule,//подключаем меню у иконки авторизации в header + возможно где-то еще
+    SharedModule, //подключаем при использовании <product-card> в main.component.html
+    CarouselModule, //подключаем библиотеку для карусели на странице main.component.html
     AppRoutingModule,
     BrowserAnimationsModule
   ],

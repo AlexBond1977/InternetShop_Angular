@@ -1,0 +1,11 @@
+@import "variables";
+
+//создаем mixin для заголовка главной страницы, который будет применен ко всем заголовкам
+@mixin head-lora-32 {
+  font-family: Lora, sans-serif;
+  font-size: 32px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 130%;
+  color: $green-text-color;
+}
