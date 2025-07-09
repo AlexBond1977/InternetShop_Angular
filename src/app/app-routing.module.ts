@@ -13,6 +13,8 @@ const routes: Routes = [
       {path: '', component: MainComponent},
     //   второй дочерний компонент - модуль пользователя UserModule сразу после создания
       {path: '', loadChildren:()=>import('./views/user/user.module').then(m => m.UserModule)},
+    //   третий дочерний компонент - модуль пользователя ProductModule сразу после создания
+      {path: '', loadChildren:()=>import('./views/product/product.module').then(m => m.ProductModule)},
     ]
   }
 ];

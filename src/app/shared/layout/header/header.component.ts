@@ -5,6 +5,7 @@ import {DefaultResponseType} from "../../../../types/default-response.type";
 import {HttpErrorResponse} from "@angular/common/http";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Router} from "@angular/router";
+import {CategoryWithTypeType} from "../../../../types/category-with-type.type";
 
 @Component({
   selector: 'app-header',
@@ -17,7 +18,10 @@ export class HeaderComponent implements OnInit {
   // layout.component.ts, а здесь добавляем декоратор @Input() - и дублируем его
   // в файле footer.component.ts
   // categories: CategoryType[] = [];
-  @Input() categories: CategoryType[] = [];
+
+  //При подключении ссылок на каталог товаров меняем тип данных
+  // @Input() categories: CategoryType[] = [];
+  @Input() categories: CategoryWithTypeType[] = [];
 
   // для изменения иконок при авторизации пользователя создается переменная отслеживания состояния
   isLogged: boolean = false;
