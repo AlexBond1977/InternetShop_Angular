@@ -34,3 +34,10 @@
   font-style: italic;
   font-weight: 300;
 }
+
+//задаем шрифт для страницы товара и описании цены
+@font-face {
+  src: url("../fonts/Montserrat-Bold.ttf");
+  font-family: "Montserrat";
+  font-weight: 700;
+}

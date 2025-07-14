@@ -6,7 +6,9 @@ import {DetailComponent} from "./detail/detail.component";
 const routes: Routes = [
 //   прописываем роутинг для созданных компонентов
   {path: 'catalog', component: CatalogComponent},
-  {path: 'detail', component: DetailComponent},
+  // меняем path: 'detail' на path: 'product/:url' для большей понятности при верстке страницы товара
+  // {path: 'detail', component: DetailComponent},
+  {path: 'product/:url', component: DetailComponent},
 ];
 
 @NgModule({

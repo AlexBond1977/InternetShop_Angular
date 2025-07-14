@@ -33,4 +33,9 @@ export class ProductService {
   //   return this.http.get<{totalCount: number, pages: number, items: ProductType[]}>(environment.api + 'products');
   // }
 
+  // при создании страницы товара создаем метод получения конкретного продукта - метод принимает url
+  getProduct(url: string): Observable<ProductType> {
+    return this.http.get<ProductType>(environment.api + 'products/' + url);
+  }
+
 }

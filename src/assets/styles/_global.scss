@@ -1,4 +1,5 @@
 @import "variables";
+@import "mixins";
 
 html, body {
   margin: 0;
@@ -25,7 +26,7 @@ html, body {
 }
 
 //задаем стили для маленького инпута при оформлении карточки товара
-.small-input{
+.small-input {
   border-radius: 5px;
   border: 1px solid #6CAC72;
   text-align: center;
@@ -52,25 +53,68 @@ html, body {
   font-size: 16px;
   font-weight: 400;
 
-  &:disabled{
+  //добавляем стили для прозрачной кнопки и кнопки с иконки при верстке страницы товара
+  &.button-transparent {
+    background-color: transparent;
+    border: 1px solid #6CAC72;
+    color: $green-text-color;
+  }
+
+  &.button-icon{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    span{
+      margin-left: 16px;
+    }
+  }
+
+  &:disabled {
     background: gray;
     cursor: not-allowed;
   }
 }
 
 //для кнопок-ссылок
-a.button{
+a.button {
   text-decoration: none;
   display: inline-block;
 }
 
 //для элементов выпадающего меню
-.mat-menu-item{
+.mat-menu-item {
   font-family: Montserrat, sans-serif;
   font-weight: 400;
 
-  a{
+  a {
     text-decoration: none;
     color: $gray-text-color;
+  }
+}
+
+//при верстке страницы товаров переносим стили из файла main.component.scss
+.carousel-header{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 50px;
+
+  .carousel-title{
+    @include head-lora-32;
+  }
+
+  .carousel-arrows{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    a{
+      cursor: pointer;
+
+      &:first-child{
+        margin-right: 30px;
+      }
+    }
   }
 }

@@ -59,19 +59,20 @@
     align-items: center;
     justify-content: space-between;
 
-    .product-card-count {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 97px;
-
-      div {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-      }
-    }
+    //вырезаем данные стили и переносим в файл count-selector.component.scss
+    //.product-card-count {
+    //  display: flex;
+    //  justify-content: space-between;
+    //  align-items: center;
+    //  width: 97px;
+    //
+    //  div {
+    //    display: flex;
+    //    justify-content: center;
+    //    align-items: center;
+    //    cursor: pointer;
+    //  }
+    //}
 
     .product-card-detail {
       display: flex;
