@@ -15,5 +15,7 @@ export type ProductType = {
     id: string,
     name: string,
     url: string,
-  }
+  },
+// добавляем опциональное свойство при реализации корзины - количество товара, добавленного в корзину
+  countInCart?: number,
 }

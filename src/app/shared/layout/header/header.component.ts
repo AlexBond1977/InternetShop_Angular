@@ -6,6 +6,7 @@ import {HttpErrorResponse} from "@angular/common/http";
 import {MatSnackBar} from "@angular/material/snack-bar";
 import {Router} from "@angular/router";
 import {CategoryWithTypeType} from "../../../../types/category-with-type.type";
+import {CartService} from "../../services/cart.service";
 
 @Component({
   selector: 'app-header',
@@ -26,12 +27,15 @@ export class HeaderComponent implements OnInit {
   // для изменения иконок при авторизации пользователя создается переменная отслеживания состояния
   isLogged: boolean = false;
 
+  // создаем перемнную для отображения количества товаров у значка корзины в header
+  count: number = 0;
 
   // добавляется использование private categoryService: CategoryService - потом убирается
   // добавляется private authService: AuthService для установления состояния регистрации
   constructor(private authService: AuthService,
               private _snackBar: MatSnackBar, //после создания функционала разлогинивания
               private router: Router, // после создания функционала разлогинивания
+              private cartService: CartService, //для отображения количества товара у значка порзины
 
   ) {
     // устанавливается первоначальное состояние регистрации
@@ -50,7 +54,19 @@ export class HeaderComponent implements OnInit {
     // подписываемся на subject isLogged$ и устанавливаем актуальное состояние isLogged
     this.authService.isLogged$.subscribe((isLoggedIn: boolean) => {
       this.isLogged = isLoggedIn;
+    });
+
+  //запрос на получение количества товара около значка корзины
+    this.cartService.getCartCount()
+      .subscribe(data=> {
+        this.count = data.count;
+      });
+
+  //подписываемся на изменение количества товара в корзине
+    this.cartService.count$.subscribe((count: number) => {
+      this.count = count;
     })
+
   }
 
 //   метод разлогирования пользователя

@@ -8,6 +8,8 @@ import {ActiveParamsUtil} from "../../../shared/utils/active-params.util";
 import {ActiveParamsType} from "../../../../types/active-params.type";
 import {AppliedFilterType} from "../../../../types/applied-filter.type";
 import {debounceTime, take} from "rxjs";
+import {CartService} from "../../../shared/services/cart.service";
+import {CartType} from "../../../../types/cart.type";
 
 @Component({
   selector: 'app-catalog',
@@ -46,14 +48,24 @@ export class CatalogComponent implements OnInit {
   // создаем переменную для работы со страницами с пагинацей - перехода по страницам списка товаров
   pages: number [] = [];
 
+  //создаем переменную для хранения состояния корзины
+  cart: CartType | null = null;
+
   constructor(private productService: ProductService, //добавляем сервис после написания метода получения списка товаров
               private categoryService: CategoryService, //добавляем сервис после написания метода получения категорий с типами товаров
               private activatedRoute: ActivatedRoute, //добавляем сервис для отображения выбранных фильтров в строке
+              private cartService: CartService, //добавляем для использования в получении состояния корзины
               private router: Router, //добавляем сервис для удаления отображения выбранных фильтров в строке
   ) {
   }
 
   ngOnInit(): void {
+    // при реализации функционала добавления в корзину делаем запрос на получение состояния корзины
+    this.cartService.getCart()
+      .subscribe((data: CartType) => {
+        this.cart = data;
+      })
+
     // переносим функционал из нижней части при создании строки с выбранными фильтрами
     //получаем категории и типы товаров, обработанные в CategoryService
     this.categoryService.getCategoriesWithTypes()
@@ -121,7 +133,26 @@ export class CatalogComponent implements OnInit {
               for (let i = 1; i <= data.pages; i++) {
                 this.pages.push(i);
               }
-              this.products = data.items;
+              //при реализации функционала состояния корзины: проверяем наличие элементов в корзине
+              // проходимся по продуктам и возвращаем новый массив с замененными элементами
+              if(this.cart && this.cart.items.length > 0){
+                this.products = data.items.map(product =>{
+                  if(this.cart){
+                    // перемнная для продукта в корзине
+                    const productInCart = this.cart.items.find(item => item.product.id === product.id);
+                    if(productInCart){
+                      // добавляем то количество товара, которое находится в корзине
+                      product.countInCart = productInCart.quantity
+                    }
+                  }
+                  //если товар не в корзине не найден, возвращается то количество, которое есть
+                  return product;
+                });
+              }else{
+                this.products = data.items;
+              }
+              // переносим в else
+              // this.products = data.items;
             });
         });
 

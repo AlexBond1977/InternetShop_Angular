@@ -15,6 +15,8 @@ const routes: Routes = [
       {path: '', loadChildren:()=>import('./views/user/user.module').then(m => m.UserModule)},
     //   третий дочерний компонент - модуль пользователя ProductModule сразу после создания
       {path: '', loadChildren:()=>import('./views/product/product.module').then(m => m.ProductModule)},
+    //   четвертый дочерний компонент - модуль пользователя OrderModule сразу после создания
+      {path: '', loadChildren:()=>import('./views/order/order.module').then(m => m.OrderModule)},
     ]
   }
 ];

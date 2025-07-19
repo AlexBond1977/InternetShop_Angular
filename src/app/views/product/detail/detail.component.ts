@@ -4,6 +4,8 @@ import {ProductService} from "../../../shared/services/product.service";
 import {ProductType} from "../../../../types/product.type";
 import {ActivatedRoute} from "@angular/router";
 import {environment} from "../../../../environments/environment";
+import {CartType} from "../../../../types/cart.type";
+import {CartService} from "../../../shared/services/cart.service";
 
 @Component({
   selector: 'app-detail',
@@ -55,6 +57,7 @@ export class DetailComponent implements OnInit {
 
   constructor(private productService: ProductService, //подключаем при создании блока рекомендуемых товаров
               private activatedRoute: ActivatedRoute, //подключаем при создании метода получения продукта
+              private cartService: CartService, //при переносе функционала корзины из файла product-card.component.ts
               ) { }
 
   // // получаем данные о рекомендуемых товарах для соответствующего блока
@@ -63,7 +66,24 @@ export class DetailComponent implements OnInit {
     this.activatedRoute.params.subscribe(params => {
       this.productService.getProduct(params['url'])
         .subscribe((data: ProductType) => {
-          this.product = data;
+          // дополняем запрос на получение информации о наличии товара в корзине при реализации
+          //функционала отображения товара в корзине
+          this.cartService.getCart()
+            .subscribe((cartData: CartType) => {
+              // если в корзине есть продукт, то ищем его
+              if (cartData) {
+                const productInCart = cartData.items.find(item => item.product.id === data.id);
+              //если продукт найдем в корзине, то сохраняем его количество и добавляем в общее количество
+                if (productInCart) {
+                  data.countInCart = productInCart.quantity;
+                  this.count = data.countInCart;
+                }
+              }
+              // после этого присваиваем значение в продукт, неважно добавлен или нет продукт в корзину
+              this.product = data;
+            })
+          // переносим в код выше
+          // this.product = data;
         })
     })
 
@@ -74,16 +94,39 @@ export class DetailComponent implements OnInit {
       })
   }
 
-//создаем метод для определения изменения внутреннего состояния элемента
+//создаем метод для определения изменения количества товара, в том числе обновление товара в корзине;
+//позже полностью переносим фнукционал из аналогичного метода файла product-card.component.ts при
+// реализации функционала отображения товара в корзине, меняем countInCart на product.countInCart,
   updateCount(value: number) {
-    console.log(value);
-    // добавляем изменение состояния количества товара в корзине
     this.count = value;
+    if (this.product.countInCart) {
+      this.cartService.updateCart(this.product.id, this.count)
+        .subscribe((data: CartType) => {
+          this.product.countInCart = this.count;
+        });
+    }
+    // console.log(value);
+    // this.count = value;
   }
 
 //создаем метод для добавления выбранного количества товаров в корзину
   addToCart() {
-    alert('Добавлено в корзину: ' + this.count);
+    // переносим функционал из аналогичного метода файла product-card.component.ts при реализации
+    // функционала отображения товара в корзине, меняем countInCart на product.countInCart, убираем alert
+    this.cartService.updateCart(this.product.id, this.count)
+      .subscribe((data: CartType) => {
+        this.product.countInCart = this.count;
+      });
+    // alert('Добавлено в корзину: ' + this.count);
   }
+
+//переносим полностью метод для удаления товара из корзины из файла файла product-card.component.ts
+removeFromCart() {
+  this.cartService.updateCart(this.product.id, 0)
+    .subscribe((data: CartType) => {
+      this.product.countInCart = 0;
+      this.count = 1;
+    });
+}
 
 }

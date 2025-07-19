@@ -60,12 +60,12 @@ html, body {
     color: $green-text-color;
   }
 
-  &.button-icon{
+  &.button-icon {
     display: flex;
     justify-content: center;
     align-items: center;
 
-    span{
+    span {
       margin-left: 16px;
     }
   }
@@ -73,6 +73,31 @@ html, body {
   &:disabled {
     background: gray;
     cursor: not-allowed;
+  }
+
+  //для кнопки корзины при наведении на нее для замены текста
+  &.button-in-cart span {
+    &:first-child {
+      display: block;
+    }
+
+    &:last-child {
+      display: none;
+    }
+  }
+
+  &:hover {
+    &.button-in-cart span {
+
+      &:first-child {
+        display: none;
+      }
+
+      &:last-child {
+        display: block;
+      }
+    }
+
   }
 }
 
@@ -94,25 +119,25 @@ a.button {
 }
 
 //при верстке страницы товаров переносим стили из файла main.component.scss
-.carousel-header{
+.carousel-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 50px;
 
-  .carousel-title{
+  .carousel-title {
     @include head-lora-32;
   }
 
-  .carousel-arrows{
+  .carousel-arrows {
     display: flex;
     align-items: center;
     justify-content: center;
 
-    a{
+    a {
       cursor: pointer;
 
-      &:first-child{
+      &:first-child {
         margin-right: 30px;
       }
     }

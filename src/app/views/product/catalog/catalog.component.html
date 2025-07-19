@@ -121,7 +121,8 @@
       </div>
 
       <div class="catalog-products">
-        <product-card *ngFor="let product of products" [product]="product"></product-card>
+<!--для отображения количества товара в корзине-->
+        <product-card [countInCart]="product.countInCart" *ngFor="let product of products" [product]="product"></product-card>
       </div>
     </div>
 

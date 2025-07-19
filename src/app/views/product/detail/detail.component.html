@@ -125,7 +125,14 @@
             <span>В избранное</span>
           </button>
 
-          <button class="button" (click)="addToCart()">В корзину</button>
+<!--переносим функционал кнопки из файла файла product-card.component.html, меняем countInCart
+на product.countInCart-->
+<!--          <button class="button" (click)="addToCart()">В корзину</button>-->
+          <button class="button" *ngIf="!product.countInCart" (click)="addToCart()">В корзину</button>
+          <button class="button button-transparent button-in-cart" *ngIf="product.countInCart" (click)="removeFromCart()">
+            <span>В корзине</span>
+            <span>Удалить</span>
+          </button>
         </div>
       </div>
     </div>
