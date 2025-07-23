@@ -10,6 +10,11 @@ import {AppliedFilterType} from "../../../../types/applied-filter.type";
 import {debounceTime, take} from "rxjs";
 import {CartService} from "../../../shared/services/cart.service";
 import {CartType} from "../../../../types/cart.type";
+import {FavoriteService} from "../../../shared/services/favorite.service";
+import {FavoriteType} from "../../../../types/favorite.type";
+import {DefaultResponseType} from "../../../../types/default-response.type";
+import {error} from "@angular/compiler-cli/src/transformers/util";
+import {AuthService} from "../../../core/auth/auth.service";
 
 @Component({
   selector: 'app-catalog',
@@ -51,112 +56,153 @@ export class CatalogComponent implements OnInit {
   //создаем переменную для хранения состояния корзины
   cart: CartType | null = null;
 
+  // создаем переменную для хранения товаров избранное
+  favoriteProducts: FavoriteType[] | null= null;
+
   constructor(private productService: ProductService, //добавляем сервис после написания метода получения списка товаров
               private categoryService: CategoryService, //добавляем сервис после написания метода получения категорий с типами товаров
               private activatedRoute: ActivatedRoute, //добавляем сервис для отображения выбранных фильтров в строке
               private cartService: CartService, //добавляем для использования в получении состояния корзины
+              private favoriteService: FavoriteService,//добавляем при реализации добавлени товара избранное
+              private authService: AuthService,//добавляем при реализации добавлени товара избранное
               private router: Router, //добавляем сервис для удаления отображения выбранных фильтров в строке
   ) {
   }
 
   ngOnInit(): void {
-    // при реализации функционала добавления в корзину делаем запрос на получение состояния корзины
+    // при реализации функционала добавления в корзину делаем запрос на получение состояния корзины;
+    // позже добавляем DefaultResponseType и его обработку для метода getCart()
     this.cartService.getCart()
-      .subscribe((data: CartType) => {
-        this.cart = data;
-      })
+      .subscribe((data: CartType | DefaultResponseType) => {
+        // добавляем обработку
+        if((data as DefaultResponseType ).error !== undefined){
+          throw new Error((data as DefaultResponseType ).message);
+        }
+        // меняем data на data as CartType
+        this.cart = data as CartType;
+
+        // добавляем запрос на получение товаров избранное, поскольку он доступен только авторизованным
+        //пользователям, делаем обработчик ошибки в отличие от получения товаров в корзину доступный всем
+        if(this.authService.getIsLoggedIn()){
+          this.favoriteService.getFavorites()
+            .subscribe(
+              {
+                next: (data: FavoriteType[] | DefaultResponseType) => {
+                  if ((data as DefaultResponseType).error !== undefined) {
+                    const error = (data as DefaultResponseType).message;
+                    // если ошибка, выводим информацию о товарах и категориях и генерируем ошибку
+                    this.processCatalog();
+                    throw new Error(error);
+                  }
+                  // если нет ошибки, размещаем товары избранное и выводим информацию о товарах и категориях
+                  this.favoriteProducts = data as FavoriteType[];
+                  this.processCatalog();
+                },
+                // если пользователь не авторизован, выводим информацию о товарах и категориях без избранное
+                error: (error) => {
+                  this.processCatalog();
+                }
+              });
+        }else{
+          this.processCatalog();
+        }
+      });
 
     // переносим функционал из нижней части при создании строки с выбранными фильтрами
     //получаем категории и типы товаров, обработанные в CategoryService
-    this.categoryService.getCategoriesWithTypes()
-      .subscribe(data => {
-        this.categoriesWithTypes = data;
-        //в самом конце после реализации верстки и всего функционала, добавляем функционал
-        // debounceTime задержки времени для обработки значений, приходящих с Observable
-        // this.activatedRoute.queryParams.subscribe(params => {
-        this.activatedRoute.queryParams
-          .pipe(
-            debounceTime(500),
-          )
-          .subscribe(params => {
-          this.activeParams = ActiveParamsUtil.processParams(params);
 
-          //установка выбранных фильтров в строку - обнуляем массив и заполняем его новыми
-          //данными: типами с checkbox (категориями) и с input (диаметр и высота)
-          this.appliedFilters = [];
-          //проходимся циклом по категориям и добавляем при наличии в строку выбранных фильтров
-          this.activeParams.types.forEach(url => {
-            // проходимся по всем категориям и ищем соответствующий элемент по массиву types
-            for (let i = 0; i < this.categoriesWithTypes.length; i++) {
-              const foundType = this.categoriesWithTypes[i].types.find(type => type.url === url);
-              //если элемент найден, добавляем его в строку с выбранными фильтрами
-              if (foundType) {
-                this.appliedFilters.push({
-                  name: foundType.name,
-                  urlParam: foundType.url
-                });
-              }
-            }
-          });
-          //проверяем наличие параметров по диаметру и высоте, добавляем их в строку выбранных фильтров
-          if (this.activeParams.heightFrom) {
-            this.appliedFilters.push({
-              name: 'Высота: от ' + this.activeParams.heightFrom + ' см',
-              urlParam: 'heightFrom'
-            });
-          }
-          if (this.activeParams.heightTo) {
-            this.appliedFilters.push({
-              name: 'Высота: до ' + this.activeParams.heightTo + ' см',
-              urlParam: 'heightTo'
-            });
-          }
-          if (this.activeParams.diameterFrom) {
-            this.appliedFilters.push({
-              name: 'Диаметр: от ' + this.activeParams.diameterFrom + ' см',
-              urlParam: 'diameterFrom'
-            });
-          }
-          if (this.activeParams.diameterTo) {
-            this.appliedFilters.push({
-              name: 'Диаметр: до ' + this.activeParams.diameterTo + ' см',
-              urlParam: 'diameterTo'
-            });
-          }
+    // БЛОК this.categoryService.getCategoriesWithTypes() переносим в отдельную функцию processCatalog()
+    //при реализации функционала добавления товара в избранное
 
-          // переносим функционал отправки запроса с выбранными параметрами на backend после изменения
-          // параметров URL и установки активных параметров, вставляем внутрь функции this.activeParams
-          // и меняем логику в данном методе в файле product.service.ts
-          this.productService.getProducts(this.activeParams)
-            .subscribe(data => {
-              this.pages = [];
-              for (let i = 1; i <= data.pages; i++) {
-                this.pages.push(i);
-              }
-              //при реализации функционала состояния корзины: проверяем наличие элементов в корзине
-              // проходимся по продуктам и возвращаем новый массив с замененными элементами
-              if(this.cart && this.cart.items.length > 0){
-                this.products = data.items.map(product =>{
-                  if(this.cart){
-                    // перемнная для продукта в корзине
-                    const productInCart = this.cart.items.find(item => item.product.id === product.id);
-                    if(productInCart){
-                      // добавляем то количество товара, которое находится в корзине
-                      product.countInCart = productInCart.quantity
-                    }
-                  }
-                  //если товар не в корзине не найден, возвращается то количество, которое есть
-                  return product;
-                });
-              }else{
-                this.products = data.items;
-              }
-              // переносим в else
-              // this.products = data.items;
-            });
-        });
-
-      })
+    // this.categoryService.getCategoriesWithTypes()
+    //   .subscribe(data => {
+    //     this.categoriesWithTypes = data;
+    //     //в самом конце после реализации верстки и всего функционала, добавляем функционал
+    //     // debounceTime задержки времени для обработки значений, приходящих с Observable
+    //     // this.activatedRoute.queryParams.subscribe(params => {
+    //     this.activatedRoute.queryParams
+    //       .pipe(
+    //         debounceTime(500),
+    //       )
+    //       .subscribe(params => {
+    //       this.activeParams = ActiveParamsUtil.processParams(params);
+    //
+    //       //установка выбранных фильтров в строку - обнуляем массив и заполняем его новыми
+    //       //данными: типами с checkbox (категориями) и с input (диаметр и высота)
+    //       this.appliedFilters = [];
+    //       //проходимся циклом по категориям и добавляем при наличии в строку выбранных фильтров
+    //       this.activeParams.types.forEach(url => {
+    //         // проходимся по всем категориям и ищем соответствующий элемент по массиву types
+    //         for (let i = 0; i < this.categoriesWithTypes.length; i++) {
+    //           const foundType = this.categoriesWithTypes[i].types.find(type => type.url === url);
+    //           //если элемент найден, добавляем его в строку с выбранными фильтрами
+    //           if (foundType) {
+    //             this.appliedFilters.push({
+    //               name: foundType.name,
+    //               urlParam: foundType.url
+    //             });
+    //           }
+    //         }
+    //       });
+    //       //проверяем наличие параметров по диаметру и высоте, добавляем их в строку выбранных фильтров
+    //       if (this.activeParams.heightFrom) {
+    //         this.appliedFilters.push({
+    //           name: 'Высота: от ' + this.activeParams.heightFrom + ' см',
+    //           urlParam: 'heightFrom'
+    //         });
+    //       }
+    //       if (this.activeParams.heightTo) {
+    //         this.appliedFilters.push({
+    //           name: 'Высота: до ' + this.activeParams.heightTo + ' см',
+    //           urlParam: 'heightTo'
+    //         });
+    //       }
+    //       if (this.activeParams.diameterFrom) {
+    //         this.appliedFilters.push({
+    //           name: 'Диаметр: от ' + this.activeParams.diameterFrom + ' см',
+    //           urlParam: 'diameterFrom'
+    //         });
+    //       }
+    //       if (this.activeParams.diameterTo) {
+    //         this.appliedFilters.push({
+    //           name: 'Диаметр: до ' + this.activeParams.diameterTo + ' см',
+    //           urlParam: 'diameterTo'
+    //         });
+    //       }
+    //
+    //       // переносим функционал отправки запроса с выбранными параметрами на backend после изменения
+    //       // параметров URL и установки активных параметров, вставляем внутрь функции this.activeParams
+    //       // и меняем логику в данном методе в файле product.service.ts
+    //       this.productService.getProducts(this.activeParams)
+    //         .subscribe(data => {
+    //           this.pages = [];
+    //           for (let i = 1; i <= data.pages; i++) {
+    //             this.pages.push(i);
+    //           }
+    //           //при реализации функционала состояния корзины: проверяем наличие элементов в корзине
+    //           // проходимся по продуктам и возвращаем новый массив с замененными элементами
+    //           if(this.cart && this.cart.items.length > 0){
+    //             this.products = data.items.map(product =>{
+    //               if(this.cart){
+    //                 // перемнная для продукта в корзине
+    //                 const productInCart = this.cart.items.find(item => item.product.id === product.id);
+    //                 if(productInCart){
+    //                   // добавляем то количество товара, которое находится в корзине
+    //                   product.countInCart = productInCart.quantity
+    //                 }
+    //               }
+    //               //если товар не в корзине не найден, возвращается то количество, которое есть
+    //               return product;
+    //             });
+    //           }else{
+    //             this.products = data.items;
+    //           }
+    //           // переносим в else
+    //           // this.products = data.items;
+    //         });
+    //     });
+    //
+    //   });
 
 
     // ПЕРЕНОСИМ ВЕСЬ ФУНКЦИОНАЛ внутрь выше
@@ -233,6 +279,112 @@ export class CatalogComponent implements OnInit {
     //     this.categoriesWithTypes = data;
     //   })
   }
+
+//ПЕРЕНОСИМ ФУНКЦИОНАЛ this.categoryService.getCategoriesWithTypes() из ngOnInit в отдельный метод
+processCatalog(){
+  this.categoryService.getCategoriesWithTypes()
+    .subscribe(data => {
+      this.categoriesWithTypes = data;
+      //в самом конце после реализации верстки и всего функционала, добавляем функционал
+      // debounceTime задержки времени для обработки значений, приходящих с Observable
+      // this.activatedRoute.queryParams.subscribe(params => {
+      this.activatedRoute.queryParams
+        .pipe(
+          debounceTime(500),
+        )
+        .subscribe(params => {
+          this.activeParams = ActiveParamsUtil.processParams(params);
+
+          //установка выбранных фильтров в строку - обнуляем массив и заполняем его новыми
+          //данными: типами с checkbox (категориями) и с input (диаметр и высота)
+          this.appliedFilters = [];
+          //проходимся циклом по категориям и добавляем при наличии в строку выбранных фильтров
+          this.activeParams.types.forEach(url => {
+            // проходимся по всем категориям и ищем соответствующий элемент по массиву types
+            for (let i = 0; i < this.categoriesWithTypes.length; i++) {
+              const foundType = this.categoriesWithTypes[i].types.find(type => type.url === url);
+              //если элемент найден, добавляем его в строку с выбранными фильтрами
+              if (foundType) {
+                this.appliedFilters.push({
+                  name: foundType.name,
+                  urlParam: foundType.url
+                });
+              }
+            }
+          });
+          //проверяем наличие параметров по диаметру и высоте, добавляем их в строку выбранных фильтров
+          if (this.activeParams.heightFrom) {
+            this.appliedFilters.push({
+              name: 'Высота: от ' + this.activeParams.heightFrom + ' см',
+              urlParam: 'heightFrom'
+            });
+          }
+          if (this.activeParams.heightTo) {
+            this.appliedFilters.push({
+              name: 'Высота: до ' + this.activeParams.heightTo + ' см',
+              urlParam: 'heightTo'
+            });
+          }
+          if (this.activeParams.diameterFrom) {
+            this.appliedFilters.push({
+              name: 'Диаметр: от ' + this.activeParams.diameterFrom + ' см',
+              urlParam: 'diameterFrom'
+            });
+          }
+          if (this.activeParams.diameterTo) {
+            this.appliedFilters.push({
+              name: 'Диаметр: до ' + this.activeParams.diameterTo + ' см',
+              urlParam: 'diameterTo'
+            });
+          }
+
+          // переносим функционал отправки запроса с выбранными параметрами на backend после изменения
+          // параметров URL и установки активных параметров, вставляем внутрь функции this.activeParams
+          // и меняем логику в данном методе в файле product.service.ts
+          this.productService.getProducts(this.activeParams)
+            .subscribe(data => {
+              this.pages = [];
+              for (let i = 1; i <= data.pages; i++) {
+                this.pages.push(i);
+              }
+              //при реализации функционала состояния корзины: проверяем наличие элементов в корзине
+              // проходимся по продуктам и возвращаем новый массив с замененными элементами
+              if(this.cart && this.cart.items.length > 0){
+                this.products = data.items.map(product =>{
+                  if(this.cart){
+                    // перемнная для продукта в корзине
+                    const productInCart = this.cart.items.find(item => item.product.id === product.id);
+                    if(productInCart){
+                      // добавляем то количество товара, которое находится в корзине
+                      product.countInCart = productInCart.quantity
+                    }
+                  }
+                  //если товар не в корзине не найден, возвращается то количество, которое есть
+                  return product;
+                });
+              }else{
+                this.products = data.items;
+              }
+              // переносим в else
+              // this.products = data.items;
+
+            //добавляем обработку товаров в избранное - после добавления запроса на их получение,
+              //если что-то есть, перезаписываем массив продуктов и меняем по состоянию избранное
+              if(this.favoriteProducts){
+                this.products = this.products.map(product => {
+                  const productInFavorite = this.favoriteProducts?.find(item=> item.id === product.id);
+                  if(productInFavorite){
+                    product.isInFavorite = true;
+                  }
+                  return product;
+                });
+              }
+            });
+        });
+
+    });
+}
+
 
 // метод для удаления выбранного фильтра в строке с проверкой диаметра и высоты - удаляем их,
 // потом категории - перезаписываем массив без удаляемых элементов и перенаправлением на ту же страницу

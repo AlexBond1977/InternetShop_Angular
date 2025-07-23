@@ -56,10 +56,17 @@ export class HeaderComponent implements OnInit {
       this.isLogged = isLoggedIn;
     });
 
-  //запрос на получение количества товара около значка корзины
+  //запрос на получение количества товара около значка корзины;
+    //позже добавляем типы { count: number  | DefaultResponseType} для data, обработку DefaultResponseType,
+    //меняем data на (data as {count: number})
     this.cartService.getCartCount()
-      .subscribe(data=> {
-        this.count = data.count;
+      .subscribe((data: { count: number } | DefaultResponseType)=> {
+        //добавляем обработку
+        if((data as DefaultResponseType ).error !== undefined){
+          throw new Error((data as DefaultResponseType ).message);
+        }
+        // меняем data на (data as {count: number})
+        this.count = (data as {count: number}).count;
       });
 
   //подписываемся на изменение количества товара в корзине

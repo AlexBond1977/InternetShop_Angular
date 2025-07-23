@@ -53,6 +53,20 @@ export class AuthService {
     throw throwError(()=> 'Can not find token!');
   }
 
+//метод для получения refresh-token - создается при создании auth.interceptor.ts для обработки 401 ошибки,
+//метод будет либо возвращать ошибку, либо токены авторизованного пользователя
+  refresh(): Observable<DefaultResponseType | LoginResponseType> {
+  //   получаем токены, проверяем, если они есть и в них refreshToken, то используем его для получения
+    //   новой пары токенов, иначе ошибка
+    const tokens = this.getTokens();
+    if(tokens && tokens.refreshToken){
+      return this.http.post<DefaultResponseType | LoginResponseType>(environment.api + 'refresh', {
+        refreshToken: tokens.refreshToken
+      })
+    }
+    throw throwError(()=> 'Can not use token!');
+  }
+
 //   метод для получения свойства авторизации пользователя
   public getIsLoggedIn() {
     return this.isLogged;

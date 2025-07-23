@@ -1,0 +1,51 @@
+<div class="favorite">
+  <div class="container">
+    <div class="favorite-title">Избранное</div>
+
+<!--дописываем блок с текстом в случае отстуствия товаров в избранное-->
+    <div class="favorite-empty" *ngIf="!products || (products && products.length === 0)">
+      <div>В избранном нет товаров!</div>
+      <button class="button" routerLink="/catalog">В каталог</button>
+    </div>
+
+<!--задаем вывод товаров в избранное только при их наличии-->
+    <div class="favorite-products" *ngIf="products && products.length > 0">
+<!--добавляем динамичный вывод товаров, изображения, названия, цены-->
+      <div class="favorite-product" *ngFor="let product of products">
+        <div class="favorite-product-image" style="background-image: url({{serverStaticPath + product.image}})"></div>
+<!--        <div class="favorite-product-name">Хавортия альба</div>-->
+        <div class="favorite-product-name">{{product.name}}</div>
+<!--        <div class="favorite-product-price">24 BYN</div>-->
+        <div class="favorite-product-price">{{product.price}} BYN</div>
+
+        <div class="favorite-product-action">
+<!--добавляем ссылку на продукт-->
+          <button class="button" routerLink="/product/{{product.url}}">Открыть</button>
+        </div>
+<!--добавляем удаление продукта из избранное-->
+        <div class="favorite-product-remove" (click)="removeFromFavorites(product.id)">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <line x1="0.935622" y1="0.649902" x2="12.9564" y2="12.6707" stroke="#A8ABA7" stroke-linecap="round"/>
+            <line x1="12.9238" y1="0.629958" x2="0.903013" y2="12.6508" stroke="#A8ABA7" stroke-linecap="round"/>
+          </svg>
+        </div>
+      </div>
+
+<!--удаляем статичную верстку товаров-->
+<!--      <div class="favorite-product">-->
+<!--        <div class="favorite-product-image"></div>-->
+<!--        <div class="favorite-product-name">Хавортия альба</div>-->
+<!--        <div class="favorite-product-price">24 BYN</div>-->
+<!--        <div class="favorite-product-action">-->
+<!--          <button class="button">Открыть</button>-->
+<!--        </div>-->
+<!--        <div class="favorite-product-remove">-->
+<!--          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">-->
+<!--            <line x1="0.935622" y1="0.649902" x2="12.9564" y2="12.6707" stroke="#A8ABA7" stroke-linecap="round"/>-->
+<!--            <line x1="12.9238" y1="0.629958" x2="0.903013" y2="12.6508" stroke="#A8ABA7" stroke-linecap="round"/>-->
+<!--          </svg>-->
+<!--        </div>-->
+<!--      </div>-->
+    </div>
+  </div>
+</div>
