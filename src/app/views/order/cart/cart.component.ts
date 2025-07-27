@@ -60,6 +60,7 @@ export class CartComponent implements OnInit {
   constructor(
     private productService: ProductService, //подключаем при создании блока рекомендуемых товаров
     private cartService: CartService, //подключаем при создании сервиса работы с корзиной
+
   ) {
   }
 
@@ -74,11 +75,12 @@ export class CartComponent implements OnInit {
     this.cartService.getCart()
       .subscribe((data: CartType | DefaultResponseType) => {
         // добавляем обработку
-        if((data as DefaultResponseType ).error !== undefined){
-          throw new Error((data as DefaultResponseType ).message);
+        if ((data as DefaultResponseType).error !== undefined) {
+          throw new Error((data as DefaultResponseType).message);
         }
         // меняем data на data as CartType
         this.cart = data as CartType;
+
         // добавляем метод после его создания
         this.calculateTotal();
       })
@@ -100,17 +102,17 @@ export class CartComponent implements OnInit {
 // создаем метод для изменения количества товаров в корзине
   //позже добавляем DefaultResponseType и его обработку, меняем data на data as CartType
   updateCount(id: string, count: number) {
-    if(this.cart) {
+    if (this.cart) {
       this.cartService.updateCart(id, count)
-      .subscribe((data: CartType | DefaultResponseType) => {
-        // добавляем обработку
-        if((data as DefaultResponseType ).error !== undefined){
-          throw new Error((data as DefaultResponseType ).message);
-        }
-        //меняем data на data as CartType
-        this.cart = data as CartType;
-        this.calculateTotal();
-      })
+        .subscribe((data: CartType | DefaultResponseType) => {
+          // добавляем обработку
+          if ((data as DefaultResponseType).error !== undefined) {
+            throw new Error((data as DefaultResponseType).message);
+          }
+          //меняем data на data as CartType
+          this.cart = data as CartType;
+          this.calculateTotal();
+        })
     }
   }
 

@@ -12,7 +12,10 @@ export class CartService {
 
   // создаем переменную для хранения количества товара добавленного в корзину - при отображении количества
   // товара у корзины в header
-  count: number = 0;
+  //при создании функционала отправки формы заказа задаем модификатор private, чтобы удалялось количество
+  //товара у значка корзины в header
+  // count: number = 0;
+  private count: number = 0;
 
   // используем для оповещения об изменениях о количестве товара в корзине
   count$: Subject<number> = new Subject<number>();
@@ -21,6 +24,13 @@ export class CartService {
     private http: HttpClient, //сразу при создании сервиса
 
   ) {
+  }
+
+  // при реализации функционала отправки формы заказа создаем метод получения данных в переменную count,
+  // и оповещаем об этом изменении всех слушателей
+  setCount(count: number) {
+    this.count = count;
+    this.count$.next(this.count);
   }
 
   //ПОСЛЕ реализации функционала избранное добавляем возможность появления ответа DefaultResponseType
@@ -41,8 +51,11 @@ export class CartService {
         tap(data => {
           // добавляем проверку на ошибку, меняем data на (data as {count: number})
           if(!data.hasOwnProperty('error')){
-            this.count = (data as {count: number}).count;
-            this.count$.next(this.count);
+            //после создания используем метод setCount()
+            // this.count = (data as {count: number}).count;
+            // this.count$.next(this.count);
+            this.setCount((data as {count: number}).count);
+
           }
           // переносим в условие выше и видоизменяем
           // this.count = data.count;
@@ -60,11 +73,15 @@ export class CartService {
         tap(data => {
           // добавляем проверку на ошибку, меняем data на (data as CartType)
           if(!data.hasOwnProperty('error')){
-            this.count = 0;
+            // после создания метода setCount() меняем this.count = 0 на let count = 0;
+            // this.count = 0;
+            let count = 0;
             (data as CartType).items.forEach(item => {
-              this.count += item.quantity;
+              count += item.quantity;
             });
-            this.count$.next(this.count);
+            //после создания используем метод setCount()
+            // this.count$.next(this.count);
+            this.setCount(count);
           }
           //переносим в блок условие и изменяем
           // this.count = 0;
