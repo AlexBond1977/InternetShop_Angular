@@ -11,6 +11,9 @@ import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {OrderService} from "../../../shared/services/order.service";
 import {OrderType} from "../../../../types/order.type";
 import {HttpErrorResponse} from "@angular/common/http";
+import {UserService} from "../../../shared/services/user.service";
+import {UserInfoType} from "../../../../types/user-info.type";
+import {AuthService} from "../../../core/auth/auth.service";
 
 @Component({
   selector: 'app-order',
@@ -66,6 +69,8 @@ export class OrderComponent implements OnInit {
     private fb: FormBuilder,//добавляем для работы с формой после оформления выбора способа доставки
     private dialog: MatDialog,//добавляем для работы popup с сообщением об успешном оформлении заказа
     private orderService: OrderService,//добавляем для реализации отправки формы заказа
+    private userService: UserService,//добавляем для получения данных о пользователя при оформлении заказа
+    private authService: AuthService,////добавляем для проверки авторизации пользователя
   ) {
     //добавляем обновление валидации сразу при создании компонента
     this.updateDeliveryTypeValidation();
@@ -87,7 +92,42 @@ export class OrderComponent implements OnInit {
           return;
         }
         this.calculateTotal();
-      })
+      });
+
+  // запрос на получение данных пользователя после завершения функционала страницы личного кабинета -
+    //полностью переносим из файла info.component.ts и размещаем в проверку условия, что пользователь
+    // авторизован, меняем userInfoForm на orderForm, добавляем comment: '',
+    if(this.authService.getIsLoggedIn()){
+      this.userService.getUserInfo()
+        .subscribe((data: UserInfoType | DefaultResponseType) => {
+          if((data as DefaultResponseType ).error !== undefined){
+            throw new Error((data as DefaultResponseType ).message);
+          }
+
+          const userInfo = data as UserInfoType;
+          const paramsToUpdate = {
+            firstName: userInfo.firstName ? userInfo.firstName : '',
+            lastName: userInfo.lastName ? userInfo.lastName : '',
+            fatherName: userInfo.fatherName ? userInfo.fatherName : '',
+            phone: userInfo.phone ? userInfo.phone : '',
+            paymentType: userInfo.paymentType ? userInfo.paymentType : PaymentType.cashToCourier,
+            email: userInfo.email ? userInfo.email : '',
+            street: userInfo.street ? userInfo.street : '',
+            house: userInfo.house ? userInfo.house : '',
+            entrance: userInfo.entrance ? userInfo.entrance : '',
+            apartment: userInfo.apartment ? userInfo.apartment : '',
+            // добавяем
+            comment: '',
+          }
+          //меняем userInfoForm на orderForm
+          // this.userInfoForm.setValue(paramsToUpdate);
+          this.orderForm.setValue(paramsToUpdate);
+          if(userInfo.deliveryType){
+            this.deliveryType = userInfo.deliveryType;
+          }
+        });
+    }
+
   }
 
 //копируем из файла cart.component.ts метод для подсчета количества товара и общей стоимости в корзине:
@@ -197,8 +237,8 @@ export class OrderComponent implements OnInit {
 
     //добавляем сообщение о необходимости заполнить поля с их выделением
     }else{
-      this.orderForm.markAllAsTouched()
-      this._snackBar.open('Заполните необходимые поля!')
+      this.orderForm.markAllAsTouched();
+      this._snackBar.open('Заполните необходимые поля!');
     }
   }
 
