@@ -38,4 +38,10 @@ export class ProductService {
     return this.http.get<ProductType>(environment.api + 'products/' + url);
   }
 
+//при реализации функционала поиска товара в header создаем соответствующий метод, 'products/search?query' берется
+//в соответствии с программой Postman -> Products -> GET Products Search блок GET
+  searchProducts(query: string): Observable<ProductType[]> {
+    return this.http.get<ProductType[]>(environment.api + 'products/search?query=' + query);
+  }
+
 }

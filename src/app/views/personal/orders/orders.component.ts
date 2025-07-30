@@ -29,7 +29,7 @@ export class OrdersComponent implements OnInit {
         //при обработке статуса заказа по цвету и тексту перерабатываем получение информации о заказе
         // this.orders = data as OrderType[];
         this.orders = (data as OrderType[]).map(item=>{
-          const status = OrderStatusUtil.getStatusAndColor(item.status)
+          const status = OrderStatusUtil.getStatusAndColor(item.status);
 
           item.statusRus = status.name;
           item.color = status.color;

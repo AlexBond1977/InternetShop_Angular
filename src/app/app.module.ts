@@ -14,6 +14,7 @@ import {MatMenuModule} from "@angular/material/menu";
 import {SharedModule} from "./shared/shared.module";
 import {CarouselModule} from "ngx-owl-carousel-o";
 import {AuthInterceptor} from "./core/auth/auth.interceptor";
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -30,6 +31,8 @@ import {AuthInterceptor} from "./core/auth/auth.interceptor";
     MatMenuModule,//подключаем меню у иконки авторизации в header + возможно где-то еще
     SharedModule, //подключаем при использовании <product-card> в main.component.html
     CarouselModule, //подключаем библиотеку для карусели на странице main.component.html
+    FormsModule, //подключаем при реализации функционала поиска товаров через header
+    ReactiveFormsModule,//подключаем при замене ngModel на formControl поиск товаров
     AppRoutingModule,
     BrowserAnimationsModule
   ],

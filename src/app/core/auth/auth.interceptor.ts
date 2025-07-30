@@ -1,10 +1,11 @@
 import {HttpEvent, HttpHandler, HttpInterceptor, HttpRequest} from "@angular/common/http";
-import {catchError, Observable, switchMap, throwError} from "rxjs";
+import {catchError, finalize, Observable, switchMap, throwError} from "rxjs";
 import {Injectable} from "@angular/core";
 import {AuthService} from "./auth.service";
 import {DefaultResponseType} from "../../../types/default-response.type";
 import {LoginResponseType} from "../../../types/login-response.type";
 import {Router} from "@angular/router";
+import {LoaderService} from "../../shared/services/loader.service";
 
 // создаем интерсептор
 @Injectable()
@@ -13,11 +14,15 @@ export class AuthInterceptor implements HttpInterceptor {
     //содаем constructor
     constructor(private authService: AuthService,//сразу при создании
                 private router: Router,//для перевода пользователя на другую страницу
+                private loaderService: LoaderService,//после создания Loader
     ) {
     }
 
     // прописываем intercept
     intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        // после создания Loader добавляем его включение перед отправкой запроса на backend
+      this.loaderService.show();
+
         // проверяем наличие token и access-token
         const tokens = this.authService.getTokens();
         if (tokens && tokens.accessToken) {
@@ -39,11 +44,16 @@ export class AuthInterceptor implements HttpInterceptor {
                         }
                         //     если ошибка не 401, возвращаем новую ошибку
                         return throwError(() => error);
-                    })
+                    }),
+                //   добавляем закрытие Loader после завершения Observable без привязки к результату
+                  finalize(() => this.loaderService.hide())
                 );
         }
         //если access-token нет, то отправляем запрос существующий access-token
-        return next.handle(req);
+      //позже добавляем закрытие Loader через pipe
+      //   return next.handle(req);
+        return next.handle(req)
+          .pipe( finalize(() => this.loaderService.hide()));
     }
 
 //создаем метод для обработки 401 ошибки с вызовом функции получения refresh-token
