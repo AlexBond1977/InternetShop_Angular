@@ -18,10 +18,20 @@
 <!--        <div class="favorite-product-price">24 BYN</div>-->
         <div class="favorite-product-price">{{product.price}} BYN</div>
 
+<!--ДЗ - меняем Кнопку «Открыть» на кнопку «В корзину»; Когда товар в корзине, надпись на кнопке
+ меняется на «В корзине», а рядом с ней отображается блок с актуальным количеством товара в корзине.-->
+<!--        <div class="favorite-product-action">-->
+<!--&lt;!&ndash;добавляем ссылку на продукт&ndash;&gt;-->
+<!--          <button class="button" routerLink="/product/{{product.url}}">Открыть</button>-->
+<!--        </div>-->
         <div class="favorite-product-action">
-<!--добавляем ссылку на продукт-->
-          <button class="button" routerLink="/product/{{product.url}}">Открыть</button>
+          <button class="button" (click)="addToCart(product.id)" *ngIf=!product.inCart>В корзину</button>
+          <button class="button button-transparent" *ngIf=product.inCart>В корзине</button>
+          <div class="favorite-product-count-in-cart" *ngIf="product.inCart">
+            <count-selector [count]="product.countInCart ? product.countInCart : 1" (onCountChange)="updateCount(product.id, $event)"></count-selector>
+          </div>
         </div>
+
 <!--добавляем удаление продукта из избранное-->
         <div class="favorite-product-remove" (click)="removeFromFavorites(product.id)">
           <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">

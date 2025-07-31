@@ -69,6 +69,18 @@
           font-weight: 600;
         }
 
+        .favorite-product-action {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+
+          .favorite-product-count-in-cart {
+            align-items: center;
+            margin-top: 15px;
+          }
+        }
+
         .favorite-product-action button{
           width: 160px;
         }

@@ -7,4 +7,7 @@ export type FavoriteType = {
   url: string;
   image: string;
   price: number;
+// ДЗ - добавляем свои опциональные значения нахождения товара в корзине и его количество
+  inCart?: boolean,
+  countInCart?: number;
 }

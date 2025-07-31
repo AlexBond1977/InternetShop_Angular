@@ -30,6 +30,9 @@ export class DetailComponent implements OnInit {
 // создаем переменную для сохранения количества товара в корзине
   count: number = 1;
 
+  // ДЗ - создаем переменную для состояния авторизации
+  isLogged: boolean = false;
+
 // копируем для работы библиотеки карусели из файла main.component.ts
   customOptions: OwlOptions = {
     loop: true,
@@ -70,6 +73,9 @@ export class DetailComponent implements OnInit {
 
   // // получаем данные о рекомендуемых товарах для соответствующего блока
   ngOnInit(): void {
+    // ДЗ - задаем состояние авторизации пользователя
+    this.isLogged = this.authService.getIsLoggedIn();
+
     // получаем данные из URL о конкретном товаре
     this.activatedRoute.params.subscribe(params => {
       this.productService.getProduct(params['url'])

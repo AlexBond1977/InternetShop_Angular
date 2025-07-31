@@ -16,7 +16,7 @@ export class LoaderComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-  //получаем данные об изменении состояния Loader из loader.service.ts
+  //запрос на получение данных об изменении состояния Loader из loader.service.ts
     this.loaderService.isShowed$.subscribe((isShowed: boolean) => {
       this.isShowed = isShowed;
     })

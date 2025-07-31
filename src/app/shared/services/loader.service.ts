@@ -12,7 +12,7 @@ export class LoaderService {
 
   constructor() { }
 
-// создаем методы открытия и закрытия Loader во всех компонентах, где он используется
+// создаем методы открытия и закрытия Loader в компонентах
   show(){
     this.isShowed$.next(true);
   }

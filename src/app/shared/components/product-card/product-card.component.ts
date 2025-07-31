@@ -37,6 +37,9 @@ export class ProductCardComponent implements OnInit {
   //создаем переменную для отображения информации о наличии товара в корзине
   @Input() countInCart: number | undefined = 0;
 
+  // ДЗ - создаем переменную для состояния авторизации
+  isLogged: boolean = false;
+
   // создаем переменную для отображения состояния нахождения товара в корзине - удаляем после создания
   // переменной @Input() countInCart
   // isInCart: boolean = false;
@@ -51,6 +54,9 @@ export class ProductCardComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // ДЗ - задаем состояние авторизации пользователя
+    this.isLogged = this.authService.getIsLoggedIn();
+
     //устанавливаем значение товара в корзине, чтобы при обновлении страницы оно отображалось в количестве
     if (this.countInCart && this.countInCart > 1) {
       this.count = this.countInCart;
