@@ -61,7 +61,7 @@
 
         .favorite-product-price{
           width: 100px;
-          margin-right: 193px;
+          margin-right: 50px;
           color:$gray-text-color;
           font-family: Montserrat, sans-serif;
           font-size: 22px;
@@ -71,13 +71,12 @@
 
         .favorite-product-action {
           display: flex;
-          flex-direction: column;
+          gap: 20px;
           align-items: center;
           justify-content: center;
 
           .favorite-product-count-in-cart {
             align-items: center;
-            margin-top: 15px;
           }
         }
 

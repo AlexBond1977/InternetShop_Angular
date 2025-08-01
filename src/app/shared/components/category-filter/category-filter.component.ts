@@ -18,7 +18,7 @@ export class CategoryFilterComponent implements OnInit {
   // принимаем данные о числах - высота или диаметр для последующего использования
   @Input() type: string | null = null;
   // создаем переменную для определения состояния компонента фильтра
-  open = false;
+  public open = false;
   // создаем объект для хранения актуальных состояний активных параметров
   activeParams: ActiveParamsType = {types: []};
   // создаем переменные для хранения значений ОТ и ДО диаметра и высоты
@@ -105,7 +105,7 @@ export class CategoryFilterComponent implements OnInit {
         // присваиваем в активные параметры существующие типы в URL, при этом activeParams должен быть
         // использован в верстке category-filter.component.html в label
         // меняем   this.activeParams.types = params['types']; на проверку
-        if (params['types']){
+        if (params['types']) {
           this.activeParams.types = Array.isArray(params['types']) ? params['types'] : [params['types']];
         }
         // this.activeParams.types = params['types'];
@@ -114,8 +114,8 @@ export class CategoryFilterComponent implements OnInit {
         //проходимся через some по всем элементам и при наличии хотя бы одного выбранного фильтра, возвращаем
         //true - элемент будет открытым
         if (this.categoryWithTypes && this.categoryWithTypes.types &&
-          this.categoryWithTypes.types.length > 0  &&
-          this.categoryWithTypes.types.some(type => this.activeParams.types.find(item => type.url === item))){
+          this.categoryWithTypes.types.length > 0 &&
+          this.categoryWithTypes.types.some(type => this.activeParams.types.find(item => type.url === item))) {
           this.open = true;
         }
       }

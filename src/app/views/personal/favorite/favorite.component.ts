@@ -1,10 +1,11 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
 import {FavoriteService} from "../../../shared/services/favorite.service";
 import {FavoriteType} from "../../../../types/favorite.type";
 import {DefaultResponseType} from "../../../../types/default-response.type";
 import {environment} from "../../../../environments/environment";
 import {CartType} from "../../../../types/cart.type";
 import {CartService} from "../../../shared/services/cart.service";
+import {ProductType} from "../../../../types/product.type";
 
 @Component({
   selector: 'app-favorite',
@@ -15,11 +16,16 @@ export class FavoriteComponent implements OnInit {
 
   //создаем переменную для хранения товаров избранное
   products: FavoriteType[] = [];
+
   // создаем переменную для использования пути в URL
   serverStaticPath = environment.serverStaticPath;
 
   // ДЗ - создаем переменную для хранения товара в корзине
   productsInCart: CartType | null = null;
+
+  @Input() product!: ProductType;
+  @Input() countInCart: number | undefined = 0;
+  count: number = 1;
 
   constructor(
     private favoriteService: FavoriteService,// добавляем при создании сервиса
@@ -110,5 +116,21 @@ export class FavoriteComponent implements OnInit {
         });
     }
   }
+
+  //ДЗ - создаем метод для удаления товара из корзины при нажатии на кнопку с уже добавленным товаром
+  removeFromCart(id: string) {
+    this.cartService.updateCart(id, 0)
+      .subscribe((data: CartType | DefaultResponseType) => {
+        if((data as DefaultResponseType).error !== undefined) {
+          throw new Error((data as DefaultResponseType).message);
+        }
+        const productToRemove = this.products.find(product => product.id === id);
+        if (productToRemove) {
+          productToRemove.countInCart = 0;
+          this.count = 1;
+        }
+      });
+  }
+
 
 }

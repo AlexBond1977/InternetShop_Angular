@@ -25,11 +25,18 @@
 <!--          <button class="button" routerLink="/product/{{product.url}}">Открыть</button>-->
 <!--        </div>-->
         <div class="favorite-product-action">
-          <button class="button" (click)="addToCart(product.id)" *ngIf=!product.inCart>В корзину</button>
-          <button class="button button-transparent" *ngIf=product.inCart>В корзине</button>
           <div class="favorite-product-count-in-cart" *ngIf="product.inCart">
             <count-selector [count]="product.countInCart ? product.countInCart : 1" (onCountChange)="updateCount(product.id, $event)"></count-selector>
           </div>
+<!--          <button class="button" (click)="addToCart(product.id)" *ngIf=!product.inCart>В корзину</button>-->
+<!--          <button class="button button-transparent" *ngIf=product.inCart>В корзине</button>-->
+
+          <button class="button" *ngIf="!product.countInCart" (click)="addToCart(product.id)">В корзину</button>
+          <button class="button button-transparent button-in-cart" *ngIf="product.countInCart" (click)="removeFromCart(product.id)">
+            <span>В корзине</span>
+            <span>Удалить</span>
+          </button>
+
         </div>
 
 <!--добавляем удаление продукта из избранное-->

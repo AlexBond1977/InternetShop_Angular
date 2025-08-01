@@ -7,13 +7,12 @@ import {ActivatedRoute, Router} from "@angular/router";
 import {ActiveParamsUtil} from "../../../shared/utils/active-params.util";
 import {ActiveParamsType} from "../../../../types/active-params.type";
 import {AppliedFilterType} from "../../../../types/applied-filter.type";
-import {debounceTime, take} from "rxjs";
+import {debounceTime} from "rxjs";
 import {CartService} from "../../../shared/services/cart.service";
 import {CartType} from "../../../../types/cart.type";
 import {FavoriteService} from "../../../shared/services/favorite.service";
 import {FavoriteType} from "../../../../types/favorite.type";
 import {DefaultResponseType} from "../../../../types/default-response.type";
-import {error} from "@angular/compiler-cli/src/transformers/util";
 import {AuthService} from "../../../core/auth/auth.service";
 
 @Component({
